@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fundo padrão do Figma para todo o app */
+body {
+  @apply bg-gradient-to-b from-white to-gray-300 min-h-screen text-gray-800 font-sans;
+}

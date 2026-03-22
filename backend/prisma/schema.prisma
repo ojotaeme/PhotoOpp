@@ -1,0 +1,56 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// O ENUM para o RBAC
+enum Role {
+  ADMIN
+  PROMOTER
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(PROMOTER)
+  createdAt    DateTime @default(now())
+  
+  // Relacionamentos
+  photos       Photo[]
+  logs         Log[]
+
+  @@map("users") // Mantém o nome da tabela em minúsculo no banco
+}
+
+model Photo {
+  id         String   @id @default(uuid())
+  imageUrl   String
+  promoterId String?
+  promoter   User?    @relation(fields: [promoterId], references: [id], onDelete: SetNull)
+  createdAt  DateTime @default(now())
+
+  // Índices para otimizar os filtros de data do painel admin
+  @@index([createdAt])
+  @@map("photos")
+}
+
+model Log {
+  id             String   @id @default(uuid())
+  ipAddress      String
+  route          String
+  method         String
+  requestBody    Json?    // Permite salvar objetos complexos (útil para logs)
+  responseStatus Int
+  eventType      String?  // Ex: "LOGIN_SUCCESS", "WRONG_PASSWORD"
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt      DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("logs")
+}

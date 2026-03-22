@@ -1,0 +1,14 @@
+# Dependências
+node_modules/
+
+# Builds
+dist/
+.vite/
+
+# Ambiente
+.env
+.env.local
+
+# Logs e Cache
+npm-debug.log*
+.eslintcache
