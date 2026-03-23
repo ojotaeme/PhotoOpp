@@ -57,6 +57,10 @@ Dentro da pasta /frontend, execute:
 ```bash
 npm run dev
 ```
+Usuários de teste:
+admin@nexlab.com | senha admin123
+promotor@nexlab.com | senha promotor123
+
 O sistema estará disponível nos seguintes endereços:
 
 Frontend: http://localhost:5173
