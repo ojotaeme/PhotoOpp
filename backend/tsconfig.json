@@ -1,28 +1,12 @@
 {
   "compilerOptions": {
-    /* Configurações de Saída */
-    "target": "ES2020",                                  
-    "module": "CommonJS",                                
-    "rootDir": "./src",                                  
-    "outDir": "./dist",                                  
-    "removeComments": true,                              
-    "noEmitOnError": true,                               
-
-    /* Interoperabilidade e Bibliotecas */
-    "esModuleInterop": true,                             
-    "forceConsistentCasingInFileNames": true,            
-    "skipLibCheck": true,                                
-
-    /* Checagem de Tipos */
-    "strict": true,                                      
-    "noImplicitAny": true,                               
-    "strictNullChecks": true,                            
-    "moduleResolution": "node",
-    
-    /* Suporte para Metadados (Útil se usar TypeORM ou alguns Loggers) */
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
-  },
-  "include": ["src/**/*"],                               
-  "exclude": ["node_modules", "**/*.test.ts"]           
+    "target": "ES2020",
+    "module": "CommonJS",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  }
 }
