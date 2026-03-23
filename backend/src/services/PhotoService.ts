@@ -3,7 +3,7 @@ import path from 'path';
 import { prisma } from '../config/database';
 import { v2 as cloudinary } from 'cloudinary';
 
-// Configuração do Cloudinary usando as variáveis de ambiente
+// Configuração do Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -12,7 +12,8 @@ cloudinary.config({
 
 export class PhotoService {
   async processAndSave(fileBuffer: Buffer, promoterId: string) {
-    const framePath = path.resolve(process.cwd(), 'public/templates/frame.png');
+    // Caminho blindado: resolve a partir de onde o código compilado está rodando
+    const framePath = path.resolve(__dirname, '../../public/templates/frame.png');
 
     const photo = sharp(fileBuffer);
     const metadata = await photo.metadata();
@@ -23,7 +24,7 @@ export class PhotoService {
 
     const frameMeta = await sharp(resizedFrame).metadata();
 
-    // Composição: Sobrepõe o frame e converte o resultado final num Buffer
+    // Aplica a moldura e gera o buffer final
     const finalBuffer = await photo
       .composite([{ input: resizedFrame, gravity: 'center' }])
       .extract({
@@ -35,11 +36,11 @@ export class PhotoService {
       .png()
       .toBuffer();
 
-    // Função auxiliar para fazer upload de um Buffer via stream para o Cloudinary
+    // Upload via Stream para o Cloudinary
     const uploadToCloudinary = (buffer: Buffer): Promise<any> => {
       return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: 'photoopp_uploads' }, // Cria esta pasta lá no Cloudinary
+          { folder: 'photoopp_uploads' },
           (error, result) => {
             if (result) resolve(result);
             else reject(error);
@@ -49,10 +50,9 @@ export class PhotoService {
       });
     };
 
-    // Faz o upload e aguarda a resposta com a URL segura
     const cloudinaryResult = await uploadToCloudinary(finalBuffer);
 
-    // Salva a referência permanente (https://res.cloudinary.com/...) no banco Neon
+    // Salva a URL pública do Cloudinary no banco de dados
     return prisma.photo.create({
       data: {
         imageUrl: cloudinaryResult.secure_url,
