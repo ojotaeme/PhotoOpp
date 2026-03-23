@@ -39,8 +39,8 @@ export const TotemExperience = () => {
     
     try {
       const data = await api.uploadPhoto(capturedImage);
-      // O QR Code aponta para a URL pública gerada pelo backend
-      setQrCodeData(`http://localhost:3000${data.photo.imageUrl}`);
+      // Alterado: passa diretamente a URL do Cloudinary para o QR Code
+      setQrCodeData(data.photo.imageUrl);
       setStep('FINAL');
     } catch (err: any) {
       setError('Falha ao processar imagem. Tente novamente.');
