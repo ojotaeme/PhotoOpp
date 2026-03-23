@@ -21,10 +21,6 @@ const EVENT_LABELS: Record<string, string> = {
   'LOGIN_FAILED': 'Falha no Login'
 };
 
-/**
- * Painel Administrativo Nexlab - Versão Final de Produção.
- * Gerencia inteligência de dados, evolução histórica e auditoria de segurança.
- */
 export const AdminDashboard = () => {
   const [data, setData] = useState<any>({ 
     stats: null, 
@@ -39,14 +35,12 @@ export const AdminDashboard = () => {
   const today = new Date().toISOString().split('T')[0];
   const [filters, setFilters] = useState({ startDate: today, endDate: today, page: 1, limit: 5 });
 
-  /** Traduz eventos técnicos para rótulos legíveis e trata rotas de upload */
   const formatEvent = (log: any) => {
     if (log.eventType && EVENT_LABELS[log.eventType]) return EVENT_LABELS[log.eventType];
     if (log.route?.includes('/upload')) return 'Upload de Foto';
     return log.eventType?.replace(/_/g, ' ') || 'Ação do Sistema';
   };
 
-  /** Carrega KPIs, Galeria e Dados de Gráficos de forma assíncrona */
   const loadData = useCallback(async () => {
     try {
       const query = `?page=${filters.page}&limit=${filters.limit}&startDate=${filters.startDate}&endDate=${filters.endDate}`;
@@ -64,20 +58,18 @@ export const AdminDashboard = () => {
       if (e.message?.includes("401") || e.message?.includes("Não autorizado")) {
         handleLogout();
       }
-    } finally {}
+    }
   }, [filters]);
 
-  /** Atualiza a trilha de auditoria filtrando os 10 eventos mais recentes e relevantes */
   const refreshLogs = useCallback(async () => {
     try {
       const result = await adminApi.fetchLogs();
       if (Array.isArray(result)) {
-        // Exibe apenas os 10 logs mais recentes que sejam de interesse administrativo
         const filteredLogs = result
           .filter((log: any) => 
             log.route?.includes('/upload') || 
             log.eventType || 
-            log.responseStatus >= 400 // Inclui erros de sistema automaticamente
+            log.responseStatus >= 400 
           )
           .slice(0, 10);
         setLogs(filteredLogs);
@@ -203,7 +195,12 @@ export const AdminDashboard = () => {
           <div className="p-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 min-h-[400px]">
             {data.photos?.data?.length > 0 ? data.photos.data.map((photo: any) => (
               <div key={photo.id} onClick={() => setSelectedPhoto(photo)} className="group relative aspect-[9/16] bg-black rounded-sm overflow-hidden border border-gray-200 cursor-pointer shadow-md">
-                <img src={`http://localhost:3000${photo.imageUrl}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                {/* CORRIGIDO: Removido localhost e adicionado crossOrigin */}
+                <img 
+                  src={photo.imageUrl} 
+                  crossOrigin="anonymous"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                />
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center">
                   <QrCode size={24} className="text-white mb-2" />
                   <span className="text-[9px] text-white font-bold uppercase tracking-widest">Ver QR</span>
@@ -269,7 +266,8 @@ export const AdminDashboard = () => {
         <div className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setSelectedPhoto(null)}>
           <div className="bg-white p-10 rounded-sm max-w-sm w-full flex flex-col items-center shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="bg-white p-2 mb-8 border border-gray-100">
-              <QRCodeSVG value={`http://localhost:3000${selectedPhoto.imageUrl}`} size={220} includeMargin={false} />
+              {/* CORRIGIDO: O valor do QR Code agora é a URL absoluta da foto */}
+              <QRCodeSVG value={selectedPhoto.imageUrl} size={220} includeMargin={false} />
             </div>
             <p className="text-[10px] font-bold text-gray-400 uppercase mb-8 text-center tracking-widest">Escaneie para download</p>
             <Button label="Fechar Visualização" onClick={() => setSelectedPhoto(null)} />
