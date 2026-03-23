@@ -1,75 +1,53 @@
-# PhotoOpp | Sistema de Gestão de Capturas Nexlab
+# PhotoOpp - Nexlab Totem Experience
 
-O PhotoOpp é uma plataforma de monorepo desenvolvida para a gestão e processamento de capturas fotográficas em eventos. O sistema é composto por uma API robusta em Node.js e um painel administrativo dinâmico desenvolvido em React.
+Solução desenvolvida para o desafio técnico proposto pela NexLab. O projeto simula a experiência de um totem de ativação em eventos, onde o usuário realiza a captura de uma foto personalizada com moldura e recebe acesso imediato via QR Code para download.
 
-## Requisitos Prévios
+## Links de Acesso
 
-Para a execução deste projeto, é necessário possuir instalado no ambiente local:
+* **Frontend (Totem e Administração):** [https://photo-opp-app.vercel.app](https://photo-opp-app.vercel.app)
 
-* **Node.js** (Versão 20 ou superior)
-* **npm** (Gerenciador de pacotes do Node)
+**Nota de Desempenho:** A API está hospedada no plano gratuito do Render. Devido à política de inatividade do serviço, o servidor entra em modo de espera (standby). O primeiro acesso após um período de inatividade pode levar entre 30 segundos e 1 minuto para a inicialização completa da instância; após este processo, o serviço funcionará normalmente.
 
-## Estrutura do Projeto
+## Credenciais de Acesso
 
-O repositório está organizado como um monorepo:
+Para fins de avaliação e demonstração, utilize os perfis abaixo:
 
-* `/backend`: API REST, Integração Prisma ORM e Processamento de Imagens.
-* `/frontend`: Dashboard Administrativo e Interface do Usuário.
+| Perfil | E-mail | Senha |
+| :--- | :--- | :--- |
+| **Administrador** | `admin@nexlab.com` | `admin123` |
+| **Promotor** | `joao@nexlab.com` | `promotor123` |
+| **Promotor (Padrão)** | `promotor@nexlab.com` | `promotor123` |
 
----
+## Arquitetura da Solução
 
-## Passo a Passo para Instalação
+A aplicação foi construída visando resiliência e escalabilidade, adotando uma arquitetura de serviços integrados:
 
-### 1. Clonagem do Repositório
-Realize o clone do projeto para sua máquina local e acesse a pasta:
-```bash
-git clone https://github.com/ojotaeme/PhotoOpp.git
-cd PhotoOpp
-```
-### 2. Configuração do Backend
-Acesse o diretório do servidor e realize a instalação das dependências:
-```bash
-cd backend
-npm install
-```
-### 3. Preparação do Banco de Dados
-Ainda na pasta /backend, execute os comandos do Prisma para sincronizar o schema e gerar o cliente de dados:
-```bash
-npx prisma generate
-npx prisma db push
-```
-### 4. Configuração do Frontend
-Abra um novo terminal na raiz do projeto, acesse a pasta do cliente e instale as dependências:
-```bash
-cd frontend
-npm install
-```
-## Execução do Projeto
-Para rodar o sistema completo, é necessário manter dois terminais ativos:
+1. **Processamento de Imagem (Sharp):** O backend processa o buffer da imagem recebida, realiza o redimensionamento dinâmico da moldura (`frame.png`) e executa a composição (overlay) para gerar o arquivo final.
+2. **Armazenamento em Nuvem (Cloudinary):** Integração com o Cloudinary via stream para o armazenamento permanente e entrega otimizada das imagens processadas.
+3. **Persistência de Dados (Neon + Prisma):** Utilização de PostgreSQL (Neon) com Prisma ORM para gestão de usuários, logs de auditoria e referências das capturas.
+4. **Segurança e Governança:** Implementação de controle de acesso baseado em funções (RBAC) com níveis ADMIN e PROMOTER, além de uma camada de middleware para auditoria de todas as requisições do sistema.
 
-### Iniciar o Backend
-Dentro da pasta /backend, execute:
-```bash
-npx tsx src/server.ts
-```
-### Iniciar o Frontend
-Dentro da pasta /frontend, execute:
-```bash
-npm run dev
-```
-Usuários de teste:
-admin@nexlab.com | senha admin123
-promotor@nexlab.com | senha promotor123
+### Modelagem de Dados
 
-O sistema estará disponível nos seguintes endereços:
+A estrutura do banco de dados foi projetada com foco em performance para o painel administrativo, utilizando índices em colunas críticas para otimização de filtros temporais.
 
-Frontend: http://localhost:5173
+![Modelagem UML do Banco de Dados](uml.png)
 
-API: http://localhost:3000
+## Tecnologias Utilizadas
 
-## Notas de Implementação
-Processamento de Imagem: O sistema utiliza a biblioteca Sharp para composição de frames. Certifique-se de que a pasta public/uploads possui permissões de escrita.
+* **Frontend:** React, Vite, Tailwind CSS, Recharts (Visualização de Dados) e Lucide React.
+* **Backend:** Node.js, Express, TypeScript e Multer.
+* **Infraestrutura:** Cloudinary (Media Storage), Render (API Hosting) e Vercel (Frontend Hosting).
 
-Segurança: As rotas administrativas são protegidas por Middleware de autenticação JWT e verificação de nível de acesso (Role-Based Access Control).
+## Execução em Ambiente Local
 
-Logs: O sistema registra automaticamente todas as interações críticas na tabela de auditoria para conformidade de segurança.
+1. Clone o repositório.
+2. **Configuração do Backend:**
+   * Navegue até a pasta `backend` e execute `npm install`.
+   * Configure o arquivo `.env` com as credenciais do Cloudinary e a `DATABASE_URL` do Neon.
+   * Gere o cliente do Prisma com `npm run prisma:generate`.
+   * Inicie o serviço com `npx tsx src/server.ts`.
+3. **Configuração do Frontend:**
+   * Navegue até a pasta `frontend` e execute `npm install`.
+   * Configure a variável `VITE_API_URL` no `.env`.
+   * Inicie a aplicação com `npm run dev`.
